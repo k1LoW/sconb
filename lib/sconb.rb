@@ -43,6 +43,7 @@ module Sconb
     
     desc "restore < dump.json > .ssh/config", "Restore .ssh/config from JSON"
     def restore()
+      ssh_config = ''
       json = ''
       while str = $stdin.gets
         json << str
