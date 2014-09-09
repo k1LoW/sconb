@@ -34,6 +34,18 @@ Install it yourself as:
 
     $ sconb keyregen < ssh_config.json
 
+## Advanced Tips
+
+### Select host
+
+Dump github.com config only.
+
+    $ sconb dump | jq '{"github.com"}' > github.json
+
+And append github.com config to .ssh/config
+
+    $ sconb restore < github.json >> ~/.ssh/config
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/sconb/fork )
