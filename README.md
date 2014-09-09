@@ -46,6 +46,10 @@ And append github.com config to .ssh/config
 
     $ sconb restore < github.json >> ~/.ssh/config
 
+### Merge config
+
+    $ jq -s '.[0] + .[1]' a.json b.json | sconb restore > ~/.ssh/config
+
 ## Contributing
 
 1. Fork it ( https://github.com/[my-github-username]/sconb/fork )
