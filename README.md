@@ -4,21 +4,19 @@ Ssh CONfig Buckup tool.
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'sconb'
-```
-
-And then execute:
-
-    $ bundle
-
-Or install it yourself as:
+Install it yourself as:
 
     $ gem install sconb
 
 ## Usage
+
+    $ sconb
+
+    Commands:
+      sconb dump > dump.json                   # Dump .ssh/config to JSON
+      sconb help [COMMAND]                     # Describe available commands or one specific command
+      sconb keyregen < dump.json               # Regenerate private keys from JSON
+      sconb restore < dump.json > .ssh/config  # Restore .ssh/config from JSON
 
 ### Backup .ssh/config to JSON
 
