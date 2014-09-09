@@ -83,6 +83,7 @@ module Sconb
             if File.exists?(identity_file) and !options[:force]
               raise Thor::Error, "Error: key exists. If you want to overwrite, use --force option."
             end
+            puts 'Regenerate ' + identity_files[i] + ' ...'
             File.open(identity_file, 'w') do |file|
               file.write keycontent
             end
