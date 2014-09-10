@@ -28,6 +28,7 @@ module Sconb
         next unless key.downcase == 'host'
         negative_hosts, positive_hosts = value.to_s.split(/\s+/).partition { |h| h.start_with?('!') }
         positive_hosts.each do | host |
+          next if host == '*'
           config = config_load(path, host)
 
           allconfig.each do |key, value|
