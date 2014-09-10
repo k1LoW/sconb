@@ -82,7 +82,7 @@ module Sconb
           value.each_with_index do |keycontent,i|
             identity_file = File.expand_path(identity_files[i])
             if File.exists?(identity_file) and !options[:force]
-              raise Thor::Error, "Error: key exists. If you want to overwrite, use --force option."
+              raise Thor::Error, "Error: " + identity_files[i] + " is exists. If you want to overwrite, use --force option."
             end
             puts 'Regenerate ' + identity_files[i] + ' ...'
             File.open(identity_file, 'w') do |file|
