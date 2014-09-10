@@ -94,7 +94,7 @@ module Sconb
       end
     end
 
-    # Original code Net::SSH::Config.load
+    # Original code is Net::SSH::Config.load (https://github.com/net-ssh/net-ssh/blob/master/LICENSE.txt)
     private
     def config_load(path, host)
       settings = {}
@@ -169,7 +169,7 @@ module Sconb
     end
 
     private
-    # Original code Net::SSH::Config.pattern2regex
+    # Original code is Net::SSH::Config.pattern2regex (https://github.com/net-ssh/net-ssh/blob/master/LICENSE.txt)
     def pattern2regex(pattern)
       pattern = "^" + pattern.to_s.gsub(/\./, "\\.").
         gsub(/\?/, '.').
