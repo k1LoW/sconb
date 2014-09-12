@@ -13,7 +13,10 @@ module Sconb
       path = options[:config]
       file = File.expand_path(path)
       configs = {}
-      return configs unless File.readable?(file)
+      unless File.readable?(file)
+        puts configs 
+        return
+      end
       
       allconfig = config_load(path, '*')
       configs['*'] = allconfig unless allconfig.size == 1
