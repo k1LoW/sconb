@@ -48,10 +48,7 @@ module Sconb
     desc "restore < dump.json > .ssh/config", "Restore .ssh/config from JSON"
     def restore()
       ssh_config = ''
-      json = ''
-      while str = $stdin.gets
-        json << str
-      end
+      json = stdin_read
       configs = JSON.parse(json)
       configs.each do |host, config|
         ssh_config << "\n"
@@ -73,10 +70,7 @@ module Sconb
     method_option :force, :type => :boolean, :aliases => '-f', :default => false, :banner => 'force generate'
     desc "keyregen < dump.json", "Regenerate private keys from JSON"
     def keyregen()
-      json = ''
-      while str = $stdin.gets
-        json << str
-      end
+      json = $stdin.read
       configs = JSON.parse(json)
       configs.each do |host, config|
         config.each do |key, value|
@@ -95,6 +89,11 @@ module Sconb
           end
         end
       end
+    end
+
+    private
+    def stdin_read()
+      return $stdin.read
     end
 
     # Original code is Net::SSH::Config.load (https://github.com/net-ssh/net-ssh/blob/master/LICENSE.txt)
