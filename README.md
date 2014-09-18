@@ -1,4 +1,4 @@
-# Sconb [![Gem Version](https://badge.fury.io/rb/sconb.svg)](http://badge.fury.io/rb/sconb) [![Build Status](https://travis-ci.org/k1LoW/sconb.svg?branch=master)](https://travis-ci.org/k1LoW/sconb) [![Coverage Status](https://coveralls.io/repos/k1LoW/sconb/badge.png)](https://coveralls.io/r/k1LoW/sconb)
+# Sconb [![Gem Version](https://badge.fury.io/rb/sconb.svg)](http://badge.fury.io/rb/sconb) [![Build Status](https://travis-ci.org/k1LoW/sconb.svg?branch=master)](https://travis-ci.org/k1LoW/sconb) [![Coverage Status](https://coveralls.io/repos/k1LoW/sconb/badge.png)](https://coveralls.io/r/k1LoW/sconb) [![Dependency Status](https://gemnasium.com/k1LoW/sconb.svg)](https://gemnasium.com/k1LoW/sconb)
 
 Ssh CONfig Buckup tool.
 
