@@ -1,4 +1,4 @@
-# Sconb
+# Sconb [![Build Status](https://travis-ci.org/k1LoW/sconb.svg?branch=master)](https://travis-ci.org/k1LoW/sconb)
 
 Ssh CONfig Buckup tool.
 
