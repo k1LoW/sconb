@@ -28,19 +28,28 @@ module Sconb
           key, value = line.strip.split(/\s+/, 2)
         end
         next if value.nil?
-        next unless key.downcase == 'host'
-        negative_hosts, positive_hosts = value.to_s.split(/\s+/).partition { |h| h.start_with?('!') }
-        positive_hosts.each do | host |
-          next if host == '*'
-          config = config_load(path, host)
 
-          allconfig.each do |key, value|
-            next unless config.key? key
-            config.delete key if config[key] == allconfig[key]
+        # Host
+        if key.downcase == 'host'
+          negative_hosts, positive_hosts = value.to_s.split(/\s+/).partition { |h| h.start_with?('!') }
+          positive_hosts.each do | host |
+            next if host == '*'
+            config = config_load(path, host)
+
+            allconfig.each do |key, value|
+              next unless config.key? key
+              config.delete key if config[key] == allconfig[key]
+            end
+
+            configs[host] = config
           end
-
-          configs[host] = config
         end
+
+        # Match
+        if key.downcase == 'match'
+          configs[key + ' ' + value] = config_match_load(path, value)
+        end
+
       end
       puts JSON.pretty_generate configs
     end
@@ -52,9 +61,13 @@ module Sconb
       configs = JSON.parse(json)
       configs.each do |host, config|
         ssh_config = ''
-        ssh_config << 'Host ' + host + "\n"
+        unless host.match(/^Match /)
+          ssh_config << 'Host ' + host + "\n"
+        else
+          ssh_config << host + "\n"
+        end        
         config.each do |key, value|
-          next if key.downcase == 'host' || key.downcase == 'identityfilecontent'
+          next if key.downcase == 'host' || key.downcase == 'match' || key.downcase == 'identityfilecontent'
           if key.downcase == 'identityfile'
             value.each_with_index do |keyfile,i|
               ssh_config << '  ' + key + ' ' + keyfile + "\n"
@@ -136,9 +149,11 @@ module Sconb
           else
             matched_host = positive_hosts.select { |h| host =~ pattern2regex(h) }.first
           end
-
           seen_host = true
           settings[key] = host
+        elsif key.downcase == 'match'
+          matched_host = nil
+          seen_host = true
         elsif !seen_host
           if key.downcase == 'identityfile'
             (globals[key] ||= []) << value
@@ -164,6 +179,72 @@ module Sconb
             settings[key] = value unless settings.key?(key)
           end
         end
+      end
+
+      settings = globals.merge(settings) if globals
+
+      return settings
+    end
+
+    private
+    def config_match_load(path, host)
+      settings = {}
+      file = File.expand_path(path)
+      return settings unless File.readable?(file)
+      
+      globals = {}
+      matched_host = nil
+      seen_host = false
+      IO.foreach(file) do |line|
+        next if line =~ /^\s*(?:#.*)?$/
+
+        if line =~ /^\s*(\S+)\s*=(.*)$/
+          key, value = $1, $2
+        else
+          key, value = line.strip.split(/\s+/, 2)
+        end
+
+        # silently ignore malformed entries
+        next if value.nil?
+
+        value = $1 if value =~ /^"(.*)"$/
+
+        if key.downcase == 'match'
+          if host == value
+            matched_host = true
+          else
+            matched_host = nil
+          end
+          seen_host = true
+          settings[key] = host
+        elsif key.downcase == 'host'
+          matched_host = nil
+          seen_host = true
+        elsif !seen_host
+          if key.downcase == 'identityfile'
+            (globals[key] ||= []) << value
+
+            # Read IdentityFile Content
+            identity_file = File.expand_path(value)
+            if options[:all] and File.readable?(identity_file)
+              (globals['IdentityFileContent'] ||= []) << File.open(identity_file).read
+            end
+          else
+            globals[key] = value unless settings.key?(key)
+          end
+        elsif !matched_host.nil?
+          if key.downcase == 'identityfile'
+            (settings[key] ||= []) << value
+
+            # Read IdentityFile Content
+            identity_file = File.expand_path(value)
+            if options[:all] and File.readable?(identity_file)
+              (settings['IdentityFileContent'] ||= []) << File.open(identity_file).read
+            end
+          else
+            settings[key] = value unless settings.key?(key)
+          end
+        end       
       end
 
       settings = globals.merge(settings) if globals

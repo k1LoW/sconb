@@ -40,6 +40,10 @@ OUT
     "TCPKeepAlive": "yes",
     "IdentitiesOnly": "yes"
   },
+  "Match exec \\"nmcli connection status id <ap-name> 2> /dev/null\\"": {
+    "Match": "exec \\"nmcli connection status id <ap-name> 2> /dev/null\\"",
+    "ProxyCommand": "ssh -W %h:%p github.com"
+  },
   "gist": {
     "Host": "gist",
     "User": "git",
@@ -111,6 +115,10 @@ OUT
     ],
     "TCPKeepAlive": "yes",
     "IdentitiesOnly": "yes"
+  },
+  "Match exec \\"nmcli connection status id <ap-name> 2> /dev/null\\"": {
+    "Match": "exec \\"nmcli connection status id <ap-name> 2> /dev/null\\"",
+    "ProxyCommand": "ssh -W %h:%p github.com"
   }
 }
 INN
@@ -135,6 +143,9 @@ Host gist
   IdentityFile spec/github_rsa
   TCPKeepAlive yes
   IdentitiesOnly yes
+
+Match exec "nmcli connection status id <ap-name> 2> /dev/null"
+  ProxyCommand ssh -W %h:%p github.com
 OUT
     end
   end
