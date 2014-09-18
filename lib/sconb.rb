@@ -2,6 +2,7 @@ require "sconb/version"
 require "thor"
 require "net/ssh"
 require "json"
+require "pp"
 
 module Sconb
   class CLI < Thor
@@ -14,12 +15,12 @@ module Sconb
       file = File.expand_path(path)
       configs = {}
       unless File.readable?(file)
-        puts configs 
+        puts configs
         return
       end
-      
+
       allconfig = config_load(path, '*')
-      configs['*'] = allconfig unless allconfig.size == 1
+      configs['*'] = allconfig unless allconfig.size <= 1
       IO.foreach(file) do |line|
         next if line =~ /^\s*(?:#.*)?$/
         if line =~ /^\s*(\S+)\s*=(.*)$/
@@ -47,13 +48,13 @@ module Sconb
 
         # Match
         if key.downcase == 'match'
-          configs[key + ' ' + value] = config_match_load(path, value)
+          configs[key + ' ' + value] = config_load(path, value)
         end
 
       end
       puts JSON.pretty_generate configs
     end
-    
+
     desc "restore < dump.json > .ssh/config", "Restore .ssh/config from JSON"
     def restore()
       ssh_configs = []
@@ -65,7 +66,7 @@ module Sconb
           ssh_config << 'Host ' + host + "\n"
         else
           ssh_config << host + "\n"
-        end        
+        end
         config.each do |key, value|
           next if key.downcase == 'host' || key.downcase == 'match' || key.downcase == 'identityfilecontent'
           if key.downcase == 'identityfile'
@@ -116,7 +117,7 @@ module Sconb
       settings = {}
       file = File.expand_path(path)
       return settings unless File.readable?(file)
-      
+
       globals = {}
       matched_host = nil
       multi_host = []
@@ -149,76 +150,15 @@ module Sconb
           else
             matched_host = positive_hosts.select { |h| host =~ pattern2regex(h) }.first
           end
+          settings[key] = host unless matched_host.nil?
           seen_host = true
-          settings[key] = host
         elsif key.downcase == 'match'
-          matched_host = nil
-          seen_host = true
-        elsif !seen_host
-          if key.downcase == 'identityfile'
-            (globals[key] ||= []) << value
-
-            # Read IdentityFile Content
-            identity_file = File.expand_path(value)
-            if options[:all] and File.readable?(identity_file)
-              (globals['IdentityFileContent'] ||= []) << File.open(identity_file).read
-            end
-          else
-            globals[key] = value unless settings.key?(key)
-          end
-        elsif !matched_host.nil?
-          if key.downcase == 'identityfile'
-            (settings[key] ||= []) << value
-
-            # Read IdentityFile Content
-            identity_file = File.expand_path(value)
-            if options[:all] and File.readable?(identity_file)
-              (settings['IdentityFileContent'] ||= []) << File.open(identity_file).read
-            end
-          else
-            settings[key] = value unless settings.key?(key)
-          end
-        end
-      end
-
-      settings = globals.merge(settings) if globals
-
-      return settings
-    end
-
-    private
-    def config_match_load(path, host)
-      settings = {}
-      file = File.expand_path(path)
-      return settings unless File.readable?(file)
-      
-      globals = {}
-      matched_host = nil
-      seen_host = false
-      IO.foreach(file) do |line|
-        next if line =~ /^\s*(?:#.*)?$/
-
-        if line =~ /^\s*(\S+)\s*=(.*)$/
-          key, value = $1, $2
-        else
-          key, value = line.strip.split(/\s+/, 2)
-        end
-
-        # silently ignore malformed entries
-        next if value.nil?
-
-        value = $1 if value =~ /^"(.*)"$/
-
-        if key.downcase == 'match'
           if host == value
             matched_host = true
           else
             matched_host = nil
           end
-          seen_host = true
-          settings[key] = host
-        elsif key.downcase == 'host'
-          matched_host = nil
+          settings[key] = host unless matched_host.nil?
           seen_host = true
         elsif !seen_host
           if key.downcase == 'identityfile'
@@ -244,7 +184,7 @@ module Sconb
           else
             settings[key] = value unless settings.key?(key)
           end
-        end       
+        end
       end
 
       settings = globals.merge(settings) if globals
