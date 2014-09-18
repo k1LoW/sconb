@@ -1,0 +1,15 @@
+Host github.com
+  User git
+  Port 22
+  Hostname github.com
+  IdentityFile spec/github_rsa
+  TCPKeepAlive yes
+  IdentitiesOnly yes
+
+Host gist
+  User git
+  Port 22
+  Hostname gist.github.com
+  IdentityFile spec/github_rsa
+  TCPKeepAlive yes
+  IdentitiesOnly yes

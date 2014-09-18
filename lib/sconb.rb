@@ -47,11 +47,11 @@ module Sconb
     
     desc "restore < dump.json > .ssh/config", "Restore .ssh/config from JSON"
     def restore()
-      ssh_config = ''
+      ssh_configs = []
       json = stdin_read
       configs = JSON.parse(json)
       configs.each do |host, config|
-        ssh_config << "\n"
+        ssh_config = ''
         ssh_config << 'Host ' + host + "\n"
         config.each do |key, value|
           next if key.downcase == 'host' || key.downcase == 'identityfilecontent'
@@ -63,8 +63,9 @@ module Sconb
             ssh_config << '  ' + key + ' ' + value + "\n"
           end
         end
+        ssh_configs.push ssh_config
       end
-      puts ssh_config
+      puts ssh_configs.join("\n")
     end
 
     method_option :force, :type => :boolean, :aliases => '-f', :default => false, :banner => 'force generate'
