@@ -36,17 +36,23 @@ Install it yourself as:
 
 ## Advanced Tips
 
-### Select host
+in like [.ssh/config](spec/config_test_multi)
+
+### Filter host
 
 Dump github.com config only.
 
-    $ sconb dump | jq '{"github.com"}' > github.json
+    $ sconb dump github.com > github.json
 
 And append github.com config to .ssh/config
 
     $ sconb restore < github.json >> ~/.ssh/config
 
-### Merge config
+Dump github.com and gist configs.
+
+    $ sconb dump gis?t > github_gist.json
+
+### Merge config with jq
 
     $ jq -s '.[0] + .[1]' a.json b.json | sconb restore > ~/.ssh/config
 
