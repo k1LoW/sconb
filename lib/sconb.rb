@@ -3,6 +3,7 @@ require "thor"
 require "net/ssh"
 require "json"
 require "pp"
+require "stackprof"
 
 module Sconb
   class CLI < Thor
@@ -11,52 +12,54 @@ module Sconb
     method_option :config, :type => :string, :aliases => '-c', :default => '~/.ssh/config', :banner => '.ssh/config path'
     desc "dump > dump.json", "Dump .ssh/config to JSON"
     def dump(regexp_str = '.*')
-      regexp = Regexp.new regexp_str
-      path = options[:config]
-      file = File.expand_path(path)
-      configs = {}
-      unless File.readable?(file)
-        puts configs
-        return
-      end
-
-      allconfig = config_load(path, '*')
-      configs['*'] = allconfig unless allconfig.size <= 1
-      IO.foreach(file) do |line|
-        next if line =~ /^\s*(?:#.*)?$/
-        if line =~ /^\s*(\S+)\s*=(.*)$/
-          key, value = $1, $2
-        else
-          key, value = line.strip.split(/\s+/, 2)
+      StackProf.run(mode: :cpu, out: '/tmp/stackprof-cpu-sconb.dump') do
+        regexp = Regexp.new regexp_str
+        path = options[:config]
+        file = File.expand_path(path)
+        configs = {}
+        unless File.readable?(file)
+          puts configs
+          return
         end
-        next if value.nil?
 
-        # Host
-        if key.downcase == 'host'
-          negative_hosts, positive_hosts = value.to_s.split(/\s+/).partition { |h| h.start_with?('!') }
-          positive_hosts.each do | host |
-            next if host == '*'            
-            next unless host.match regexp
-            config = config_load(path, host)
-
-            allconfig.each do |key, value|
-              next unless config.key? key
-              config.delete key if config[key] == allconfig[key]
-            end
-
-            configs[host] = config
+        allconfig = config_load(path, '*')
+        configs['*'] = allconfig unless allconfig.size <= 1
+        IO.foreach(file) do |line|
+          next if line =~ /^\s*(?:#.*)?$/
+          if line =~ /^\s*(\S+)\s*=(.*)$/
+            key, value = $1, $2
+          else
+            key, value = line.strip.split(/\s+/, 2)
           end
-        end
+          next if value.nil?
 
-        # Match
-        if key.downcase == 'match'
-          match_key = key + ' ' + value
-          next unless match_key.match regexp
-          configs[match_key] = config_load(path, value)
-        end
+          # Host
+          if key.downcase == 'host'
+            negative_hosts, positive_hosts = value.to_s.split(/\s+/).partition { |h| h.start_with?('!') }
+            positive_hosts.each do | host |
+              next if host == '*'            
+              next unless host.match regexp
+              config = config_load(path, host)
 
+              allconfig.each do |key, value|
+                next unless config.key? key
+                config.delete key if config[key] == allconfig[key]
+              end
+
+              configs[host] = config
+            end
+          end
+
+          # Match
+          if key.downcase == 'match'
+            match_key = key + ' ' + value
+            next unless match_key.match regexp
+            configs[match_key] = config_load(path, value)
+          end
+
+        end
+        puts JSON.pretty_generate configs
       end
-      puts JSON.pretty_generate configs
     end
 
     desc "restore < dump.json > .ssh/config", "Restore .ssh/config from JSON"
