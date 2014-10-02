@@ -88,7 +88,7 @@ module Sconb
     method_option :force, :type => :boolean, :aliases => '-f', :default => false, :banner => 'force generate'
     desc "keyregen < dump.json", "Regenerate private keys from JSON"
     def keyregen()
-      json = $stdin.read
+      json = stdin_read
       configs = JSON.parse(json)
       configs.each do |host, config|
         config.each do |key, value|

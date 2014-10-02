@@ -153,8 +153,9 @@ OUT
   }
 }
 INN
-)
+                                      )
     end
+
     it "should convert from JSON to config" do
       expect(capture(:stdout) {
                @cli.restore
@@ -179,5 +180,52 @@ Match exec "nmcli connection status id <ap-name> 2> /dev/null"
   ProxyCommand ssh -W %h:%p github.com
 OUT
     end
+  end
+
+  context '`keyregen` command' do
+    before do
+      @cli = Sconb::CLI.new
+      allow(@cli).to receive_messages(:stdin_read => <<INN
+{
+  "github.com": {
+    "Host": "github.com",
+    "User": "git",
+    "Port": "22",
+    "Hostname": "github.com",
+    "IdentityFile": [
+      "/tmp/sconb_spec_github_rsa"
+    ],
+    "IdentityFileContent": [
+      "This is github_rsa"
+    ]
+  },
+  "gist": {
+    "Host": "gist",
+    "User": "git",
+    "Port": "22",
+    "Hostname": "gist.github.com",
+    "IdentityFile": [
+      "/tmp/sconb_spec_gist_rsa"
+    ],
+    "IdentityFileContent": [
+      "This is gist_rsa"
+    ]
+  }
+}
+INN
+                                      )
+    end
+
+    it "should generate private keys from JSON to config" do      
+      @cli.keyregen
+      expect(File.open('/tmp/sconb_spec_github_rsa').read).to eq "This is github_rsa"
+      expect(File.open('/tmp/sconb_spec_gist_rsa').read).to eq "This is gist_rsa"
+    end
+
+    after do
+      File.unlink('/tmp/sconb_spec_github_rsa')
+      File.unlink('/tmp/sconb_spec_gist_rsa')
+    end
+    
   end
 end
