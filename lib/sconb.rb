@@ -2,7 +2,6 @@ require "sconb/version"
 require "thor"
 require "net/ssh"
 require "json"
-require "pp"
 
 module Sconb
   class CLI < Thor
