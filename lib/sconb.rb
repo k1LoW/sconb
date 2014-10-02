@@ -10,7 +10,8 @@ module Sconb
     method_option :all, :type => :boolean, :aliases => '-a', :default => false, :banner => 'dump .ssh/config and private keys.'
     method_option :config, :type => :string, :aliases => '-c', :default => '~/.ssh/config', :banner => '.ssh/config path'
     desc "dump > dump.json", "Dump .ssh/config to JSON"
-    def dump()
+    def dump(regexp_str = '.*')
+      regexp = Regexp.new regexp_str
       path = options[:config]
       file = File.expand_path(path)
       configs = {}
@@ -34,7 +35,8 @@ module Sconb
         if key.downcase == 'host'
           negative_hosts, positive_hosts = value.to_s.split(/\s+/).partition { |h| h.start_with?('!') }
           positive_hosts.each do | host |
-            next if host == '*'
+            next if host == '*'            
+            next unless host.match regexp
             config = config_load(path, host)
 
             allconfig.each do |key, value|
@@ -48,7 +50,9 @@ module Sconb
 
         # Match
         if key.downcase == 'match'
-          configs[key + ' ' + value] = config_load(path, value)
+          match_key = key + ' ' + value
+          next unless match_key.match regexp
+          configs[match_key] = config_load(path, value)
         end
 
       end
