@@ -26,19 +26,19 @@ module Sconb
       configs.each do |host, config|
         ssh_config = ''
         header = if host !~ /^Match /
-                   'Host ' + host + "\n"
+                   "Host #{host}\n"
                  else
-                   host + "\n"
+                   "#{host}\n"
                  end
         ssh_config << header
         config.each do |key, value|
           next if key.downcase == 'host' || key.downcase == 'match' || key.downcase == 'identityfilecontent'
           if key.downcase == 'identityfile'
             value.each_with_index do |keyfile, _i|
-              ssh_config << '  ' + key + ' ' + keyfile + "\n"
+              ssh_config << "  #{key} #{keyfile}\n"
             end
           else
-            ssh_config << '  ' + key + ' ' + value + "\n"
+            ssh_config << "  #{key} #{value}\n"
           end
         end
         ssh_configs.push ssh_config
