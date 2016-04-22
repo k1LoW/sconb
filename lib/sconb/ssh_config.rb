@@ -1,5 +1,5 @@
 module Sconb
-  module SshConfig
+  module SSHConfig
     class << self
       def load(regexp_str, options)
         @options = options
