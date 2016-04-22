@@ -14,7 +14,8 @@ module Sconb
            banner: '.ssh/config path'
     desc 'dump > dump.json', 'Dump .ssh/config to JSON'
     def dump(regexp_str = '.*')
-      puts JSON.pretty_generate(Sconb::SSHConfig.load(regexp_str, options))
+      path = options[:config]
+      puts JSON.pretty_generate(Sconb::SSHConfig.load(path, regexp_str, options))
     end
 
     desc 'restore < dump.json > .ssh/config', 'Restore .ssh/config from JSON'

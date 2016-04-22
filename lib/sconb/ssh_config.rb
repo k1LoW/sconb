@@ -1,10 +1,10 @@
 module Sconb
   module SSHConfig
     class << self
-      def load(regexp_str, options)
-        @options = options
+      def load(path, regexp_str = '.*', options = [])
+        @path = path
         @regexp = Regexp.new(regexp_str)
-        @path = @options[:config]
+        @options = options
         file = File.expand_path(@path)
         @configs = {}
         return @configs unless File.readable?(file)
