@@ -3,11 +3,10 @@ require 'spec_helper'
 
 describe Sconb do
   context '`dump` command' do
-
-    it "should convert from .ssh/config to JSON" do
-      expect(capture(:stdout) {
-               Sconb::CLI.new.invoke(:dump, [], {config: File.expand_path('../config_test', __FILE__)})
-             }).to eq <<OUT
+    it 'should convert from .ssh/config to JSON' do
+      expect(capture(:stdout) do
+               Sconb::CLI.new.invoke(:dump, [], { config: File.expand_path('../config_test', __FILE__) })
+             end).to eq <<OUT
 {
   "github.com": {
     "Host": "github.com",
@@ -24,10 +23,10 @@ describe Sconb do
 OUT
     end
 
-    it "should convert from multi config to JSON" do
-      expect(capture(:stdout) {
-               Sconb::CLI.new.invoke(:dump, [], {config: File.expand_path('../config_test_multi', __FILE__)})
-             }).to eq <<OUT
+    it 'should convert from multi config to JSON' do
+      expect(capture(:stdout) do
+               Sconb::CLI.new.invoke(:dump, [], { config: File.expand_path('../config_test_multi', __FILE__) })
+             end).to eq <<OUT
 {
   "github.com": {
     "Host": "github.com",
@@ -59,10 +58,10 @@ OUT
 OUT
     end
 
-    it "should convert from multi config to JSON with filter" do
-      expect(capture(:stdout) {
-               Sconb::CLI.new.invoke(:dump, ['gis?t'], {config: File.expand_path('../config_test_multi', __FILE__)})
-             }).to eq <<OUT
+    it 'should convert from multi config to JSON with filter' do
+      expect(capture(:stdout) do
+               Sconb::CLI.new.invoke(:dump, ['gis?t'], { config: File.expand_path('../config_test_multi', __FILE__) })
+             end).to eq <<OUT
 {
   "github.com": {
     "Host": "github.com",
@@ -90,10 +89,10 @@ OUT
 OUT
     end
 
-    it "should convert from .ssh/config to JSON with private keys" do
-      expect(capture(:stdout) {
-               Sconb::CLI.new.invoke(:dump, [], {config: File.expand_path('../config_test', __FILE__), all: true})
-             }).to eq <<OUT
+    it 'should convert from .ssh/config to JSON with private keys' do
+      expect(capture(:stdout) do
+               Sconb::CLI.new.invoke(:dump, [], { config: File.expand_path('../config_test', __FILE__), all: true })
+             end).to eq <<OUT
 {
   "github.com": {
     "Host": "github.com",
@@ -117,7 +116,7 @@ OUT
   context '`restore` command' do
     before do
       @cli = Sconb::CLI.new
-      allow(@cli).to receive_messages(:stdin_read => <<INN
+      allow(@cli).to receive_messages(stdin_read: <<INN
 {
   "github.com": {
     "Host": "github.com",
@@ -153,13 +152,11 @@ OUT
   }
 }
 INN
-                                      )
+                                     )
     end
 
-    it "should convert from JSON to config" do
-      expect(capture(:stdout) {
-               @cli.restore
-             }).to eq <<OUT
+    it 'should convert from JSON to config' do
+      expect(capture(:stdout) { @cli.restore }).to eq <<OUT
 Host github.com
   User git
   Port 22
@@ -185,7 +182,7 @@ OUT
   context '`keyregen` command' do
     before do
       @cli = Sconb::CLI.new
-      allow(@cli).to receive_messages(:stdin_read => <<INN
+      allow(@cli).to receive_messages(stdin_read: <<INN
 {
   "github.com": {
     "Host": "github.com",
@@ -213,19 +210,18 @@ OUT
   }
 }
 INN
-                                      )
+                                     )
     end
 
-    it "should generate private keys from JSON to config" do      
+    it 'should generate private keys from JSON to config' do
       @cli.keyregen
-      expect(File.open('/tmp/sconb_spec_github_rsa').read).to eq "This is github_rsa"
-      expect(File.open('/tmp/sconb_spec_gist_rsa').read).to eq "This is gist_rsa"
+      expect(File.open('/tmp/sconb_spec_github_rsa').read).to eq 'This is github_rsa'
+      expect(File.open('/tmp/sconb_spec_gist_rsa').read).to eq 'This is gist_rsa'
     end
 
     after do
       File.unlink('/tmp/sconb_spec_github_rsa')
       File.unlink('/tmp/sconb_spec_gist_rsa')
     end
-    
   end
 end
