@@ -9,7 +9,7 @@ module Sconb
         @configs = {}
         return @configs unless File.readable?(file)
 
-        @allconfig = Net::SSH::Config.sconb_load(@path, '*', @options)
+        @allconfig = Net::SSH::Config.load_with_key(@path, '*', @options)
         @configs['*'] = @allconfig unless @allconfig.size <= 1
         IO.foreach(file) do |line|
           parse(line)
@@ -35,7 +35,7 @@ module Sconb
           positive_hosts.each do |host|
             next if host == '*'
             next unless host.match @regexp
-            config = Net::SSH::Config.sconb_load(@path, host, @options)
+            config = Net::SSH::Config.load_with_key(@path, host, @options)
 
             @allconfig.each do |k, _v|
               next unless config.key? k
@@ -50,7 +50,7 @@ module Sconb
         if key.downcase == 'match'
           match_key = key + ' ' + value
           return unless match_key.match @regexp
-          @configs[match_key] = Net::SSH::Config.sconb_load(@path, value, @options)
+          @configs[match_key] = Net::SSH::Config.load_with_key(@path, value, @options)
         end
       end
     end

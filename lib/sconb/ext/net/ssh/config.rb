@@ -4,7 +4,7 @@ module Net
       class << self
         # Original code is Net::SSH::Config.load (https://github.com/net-ssh/net-ssh/blob/master/LICENSE.txt)
         # rubocop:disable all
-        def sconb_load(path, host, options)
+        def load_with_key(path, host, options)
           settings = {}
           file = File.expand_path(path)
           return settings unless File.readable?(file)
