@@ -4,16 +4,15 @@ module Net
       class << self
         # Original code is Net::SSH::Config.load (https://github.com/net-ssh/net-ssh/blob/master/LICENSE.txt)
         # rubocop:disable all
-        def load_with_key(path, host, options)
+        def parse_with_key(content, host, options)
           settings = {}
-          file = File.expand_path(path)
-          return settings unless File.readable?(file)
+          return settings unless content
 
           globals = {}
           matched_host = nil
           multi_host = []
           seen_host = false
-          IO.foreach(file) do |line|
+          content.each_line do |line|
             next if line =~ /^\s*(?:#.*)?$/
 
             if line =~ /^\s*(\S+)\s*=(.*)$/

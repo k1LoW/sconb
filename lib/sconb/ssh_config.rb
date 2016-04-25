@@ -2,24 +2,28 @@ module Sconb
   module SSHConfig
     class << self
       def load(path, regexp_str = '.*', options = [])
-        @path = path
+        file = File.expand_path(path)
+        content = File.readable?(file) ? File.open(file).read : nil
+        parse(content, regexp_str, options)
+      end
+
+      def parse(content, regexp_str = '.*', options = [])
         @regexp = Regexp.new(regexp_str)
         @options = options
-        file = File.expand_path(@path)
+        @content = content
         @configs = {}
-        return @configs unless File.readable?(file)
-
-        @allconfig = Net::SSH::Config.load_with_key(@path, '*', @options)
+        return @configs if content.nil?
+        @allconfig = Net::SSH::Config.parse_with_key(@content, '*', @options)
         @configs['*'] = @allconfig unless @allconfig.size <= 1
-        IO.foreach(file) do |line|
-          parse(line)
+        @content.each_line do |line|
+          parse_line(line)
         end
         @configs
       end
 
       private
 
-      def parse(line)
+      def parse_line(line)
         return if line =~ /^\s*(?:#.*)?$/
         if line =~ /^\s*(\S+)\s*=(.*)$/
           key = Regexp.last_match[1]
@@ -35,7 +39,7 @@ module Sconb
           positive_hosts.each do |host|
             next if host == '*'
             next unless host.match @regexp
-            config = Net::SSH::Config.load_with_key(@path, host, @options)
+            config = Net::SSH::Config.parse_with_key(@content, host, @options)
 
             @allconfig.each do |k, _v|
               next unless config.key? k
@@ -50,7 +54,7 @@ module Sconb
         if key.downcase == 'match'
           match_key = key + ' ' + value
           return unless match_key.match @regexp
-          @configs[match_key] = Net::SSH::Config.load_with_key(@path, value, @options)
+          @configs[match_key] = Net::SSH::Config.parse_with_key(@content, value, @options)
         end
       end
     end
