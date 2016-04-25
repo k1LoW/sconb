@@ -4,7 +4,7 @@ module Net
       class << self
         # Original code is Net::SSH::Config.load (https://github.com/net-ssh/net-ssh/blob/master/LICENSE.txt)
         # rubocop:disable all
-        def parse_with_key(content, host, options)
+        def parse_with_key(content, host, options = {})
           settings = {}
           return settings unless content
 

@@ -1,13 +1,13 @@
 module Sconb
   module SSHConfig
     class << self
-      def load(path, regexp_str = '.*', options = [])
+      def load(path, regexp_str = '.*', options = {})
         file = File.expand_path(path)
         content = File.readable?(file) ? File.open(file).read : nil
         parse(content, regexp_str, options)
       end
 
-      def parse(content, regexp_str = '.*', options = [])
+      def parse(content, regexp_str = '.*', options = {})
         @regexp = Regexp.new(regexp_str)
         @options = options
         @content = content
