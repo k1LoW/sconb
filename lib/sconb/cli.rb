@@ -1,4 +1,5 @@
 require 'thor'
+require 'json'
 
 module Sconb
   class CLI < Thor
