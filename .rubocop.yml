@@ -1,8 +1,7 @@
 AllCops:
   TargetRubyVersion: 2.1
   Exclude:
-    - 'lib/koma/ext/**/*'
-    - 'spec/specinfra/**/*'
+    - 'lib/sconb/ext/**/*'
 
 Lint/Eval:
   Enabled: false
